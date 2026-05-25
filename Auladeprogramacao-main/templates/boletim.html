@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Boletim{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Consulta</p>
+    <h1>Boletim</h1>
+  </div>
+</section>
+
+<section class="grid {% if usuario_aluno() %}single-column{% endif %}">
+  {% if not usuario_aluno() %}
+    <form class="panel form-panel" method="get">
+      <h2>Selecionar aluno</h2>
+      <label>
+        Aluno
+        <select name="aluno_id" required>
+          <option value="">Selecione</option>
+          {% for item in alunos %}
+            <option value="{{ item.id }}" {% if aluno_id == item.id %}selected{% endif %}>
+              {{ item.nome }} - {{ item.matricula }}
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+      <button type="submit">Ver boletim</button>
+    </form>
+  {% endif %}
+
+  <div class="panel">
+    {% if aluno %}
+      <div class="panel-header">
+        <h2>{{ aluno.nome }}</h2>
+      </div>
+
+      <div class="boletim-info">
+        <p><strong>Matricula:</strong> {{ aluno.matricula }}</p>
+        <p><strong>CPF:</strong> {{ aluno.cpf }}</p>
+        <p><strong>Curso:</strong> {{ aluno.curso }}</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Codigo</th>
+              <th>Disciplina</th>
+              <th>Professor</th>
+              <th>Carga</th>
+              <th>Nota 1</th>
+              <th>Nota 2</th>
+              <th>Media</th>
+              <th>Status</th>
+              {% if not usuario_aluno() %}<th></th>{% endif %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for disciplina in disciplinas %}
+              <tr>
+                <td>{{ disciplina.codigo }}</td>
+                <td>{{ disciplina.nome }}</td>
+                <td>{{ disciplina.professor }}</td>
+                <td>{{ disciplina.carga_horaria }}h</td>
+                <td>{{ "%.1f"|format(disciplina.nota1) if disciplina.nota1 is not none else "Sem nota" }}</td>
+                <td>{{ "%.1f"|format(disciplina.nota2) if disciplina.nota2 is not none else "Sem nota" }}</td>
+                {% if disciplina.nota1 is not none and disciplina.nota2 is not none %}
+                  {% set media = (disciplina.nota1 + disciplina.nota2) / 2 %}
+                  <td>{{ "%.1f"|format(media) }}</td>
+                  <td>{{ "Aprovado" if media >= 7 else "Recuperacao" }}</td>
+                {% else %}
+                  <td>Sem media</td>
+                  <td>Aguardando notas</td>
+                {% endif %}
+                {% if not usuario_aluno() %}
+                  <td>
+                    <a class="ghost-link" href="{{ url_for('editar_boletim', matricula_id=disciplina.matricula_id) }}">Gerenciar</a>
+                  </td>
+                {% endif %}
+              </tr>
+            {% else %}
+              <tr><td colspan="{{ 8 if usuario_aluno() else 9 }}" class="empty">Este aluno ainda nao possui disciplinas matriculadas.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty">Selecione um aluno para visualizar o boletim.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

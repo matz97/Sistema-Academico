@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastro{% endblock %}
+
+{% block content %}
+<section class="login-page">
+  <form class="panel auth-panel" method="post">
+    <p class="eyebrow">Novo acesso</p>
+    <h1>Criar conta</h1>
+    <label>Usuario<input name="usuario" autocomplete="username" required autofocus></label>
+    <label>Senha<input name="senha" type="password" autocomplete="new-password" required></label>
+    <label>Confirmar senha<input name="confirmar_senha" type="password" autocomplete="new-password" required></label>
+    <label>
+      Perfil
+      <select name="perfil" required>
+        <option value="aluno">Aluno</option>
+        <option value="professor">Professor</option>
+        <option value="admin">Admin</option>
+      </select>
+    </label>
+    <label>
+      Vincular aluno
+      <select name="aluno_id">
+        <option value="">Sem vinculo de aluno</option>
+        {% for aluno in alunos %}
+          <option value="{{ aluno.id }}">{{ aluno.nome }} - {{ aluno.matricula }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Vincular professor
+      <select name="professor_id">
+        <option value="">Sem vinculo de professor</option>
+        {% for professor in professores %}
+          <option value="{{ professor.id }}">{{ professor.nome }} - {{ professor.registro }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Cadastrar</button>
+    <p class="auth-note">Ja tem conta? <a href="{{ url_for('login') }}">Entrar</a></p>
+  </form>
+</section>
+{% endblock %}

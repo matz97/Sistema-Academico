@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar boletim{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Boletim</p>
+    <h1>Gerenciar boletim</h1>
+  </div>
+</section>
+
+<form class="panel edit-panel" method="post">
+  <div class="boletim-info">
+    <p><strong>Aluno:</strong> {{ matricula.aluno }}</p>
+    <p><strong>Matricula:</strong> {{ matricula.matricula }}</p>
+    <p><strong>Curso:</strong> {{ matricula.curso }}</p>
+  </div>
+
+  <div class="boletim-info">
+    <p><strong>Disciplina:</strong> {{ matricula.disciplina }}</p>
+    <p><strong>Codigo:</strong> {{ matricula.codigo }}</p>
+    <p><strong>Carga atual:</strong> {{ matricula.carga_horaria }}h</p>
+  </div>
+
+  <label>Nota 1<input name="nota1" type="number" min="0" max="10" step="0.1" value="{{ matricula.nota1 if matricula.nota1 is not none else '' }}"></label>
+  <label>Nota 2<input name="nota2" type="number" min="0" max="10" step="0.1" value="{{ matricula.nota2 if matricula.nota2 is not none else '' }}"></label>
+  <label>Carga horaria<input name="carga_horaria" type="number" min="1" step="1" value="{{ matricula.carga_horaria }}" required></label>
+
+  <div class="form-actions">
+    <a class="button secondary" href="{{ url_for('boletim', aluno_id=matricula.aluno_id) }}">Cancelar</a>
+    <button type="submit">Salvar boletim</button>
+  </div>
+</form>
+{% endblock %}

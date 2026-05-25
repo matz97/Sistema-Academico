@@ -1,0 +1,1223 @@
+DOCUMENTACAO COMPLETA DO SISTEMA ACADEMICO
+
+Atualizado em: 23/05/2026
+
+
+1. VISAO GERAL
+
+O Sistema Academico e uma aplicacao desenvolvida em Python para gerenciar
+informacoes academicas de uma instituicao de ensino.
+
+O projeto possui duas partes principais:
+
+- Um prototipo orientado a objetos, executado pelo terminal, com classes como
+  Pessoa, Aluno, Professor, Disciplina e SistemaAcademico.
+- Uma aplicacao web em Flask, com persistencia em banco de dados, login,
+  controle de perfis, telas de cadastro, boletim e relatorios.
+
+A versao web e a principal interface de uso do sistema.
+
+
+2. OBJETIVOS DO SISTEMA
+
+O sistema tem como objetivos:
+
+- Cadastrar e listar alunos.
+- Cadastrar e listar professores.
+- Cadastrar e listar disciplinas.
+- Vincular professores a disciplinas.
+- Matricular alunos em disciplinas.
+- Registrar notas e carga horaria no boletim.
+- Consultar boletim por perfil de usuario.
+- Gerenciar usuarios do sistema.
+- Controlar permissoes por perfil.
+- Gerar relatorios em JSON e PDF.
+- Usar MySQL em ambiente completo ou SQLite local para testes.
+
+
+3. TECNOLOGIAS UTILIZADAS
+
+- Python
+- Flask
+- Jinja2
+- MySQL
+- SQLite
+- mysql-connector-python
+- HTML
+- CSS
+- JavaScript simples para busca em tabelas
+
+
+4. ESTRUTURA DE ARQUIVOS
+
+Arquivos principais:
+
+- app.py
+  Arquivo principal da aplicacao Flask. Contem rotas, login, sessoes,
+  permissoes, cadastros, boletim, relatorios e regras de acesso.
+
+- db.py
+  Contem a camada de acesso ao banco de dados. Tenta conectar no MySQL e, se
+  nao conseguir, usa SQLite local. Tambem cria e ajusta tabelas no SQLite e
+  ajusta a tabela de usuarios no MySQL.
+
+- relatorios.py
+  Contem funcoes para gerar relatorios em JSON e PDF.
+
+- schema.sql
+  Script SQL para criar o banco MySQL, tabelas, relacionamentos e dados
+  iniciais.
+
+- requirements.txt
+  Lista as dependencias Python do projeto.
+
+- README.md
+  Guia rapido de instalacao, execucao e uso.
+
+- documentacao.txt
+  Documentacao completa do projeto.
+
+- templates/
+  Pasta com os arquivos HTML renderizados pelo Flask.
+
+- static/styles.css
+  Arquivo de estilos da interface.
+
+- static/search.js
+  Script de busca nas tabelas da interface.
+
+- static/favicon.svg
+  Icone da aplicacao.
+
+Arquivos do prototipo orientado a objetos:
+
+- Pessoa.py
+- Aluno.py
+- Professor.py
+- Disciplina.py
+- Sistema_academico.py
+
+
+5. ARQUITETURA GERAL
+
+A aplicacao segue uma estrutura simples:
+
+1. O usuario acessa a aplicacao pelo navegador.
+2. O Flask recebe a requisicao em app.py.
+3. A rota verifica login e perfil do usuario.
+4. A rota consulta ou altera dados usando funcoes de db.py.
+5. O Flask renderiza um template HTML da pasta templates/.
+6. O navegador exibe a pagina com estilos de static/styles.css.
+
+As principais camadas sao:
+
+- Interface: templates HTML, CSS e JavaScript.
+- Aplicacao: rotas e regras em app.py.
+- Persistencia: funcoes e conexoes em db.py.
+- Relatorios: geracao de JSON/PDF em relatorios.py.
+- Banco: MySQL ou SQLite.
+
+
+6. BANCO DE DADOS
+
+O sistema pode usar dois bancos:
+
+- MySQL: banco principal recomendado.
+- SQLite: banco local automatico para desenvolvimento e testes.
+
+6.1 MySQL
+
+O arquivo schema.sql cria:
+
+- Banco sistema_academico.
+- Tabelas alunos, professores, disciplinas, matriculas e usuarios.
+- Relacionamentos entre disciplinas/professores e matriculas/alunos.
+- Dados iniciais para teste.
+
+6.2 SQLite
+
+Se o MySQL nao estiver disponivel e MYSQL_REQUIRED nao estiver ativado, o
+sistema cria e usa um banco SQLite local.
+
+O caminho padrao e:
+
+sistema_academico.sqlite3
+
+Esse caminho pode ser alterado pela variavel SQLITE_PATH.
+
+6.3 Selecao automatica do banco
+
+O arquivo db.py tenta conectar no MySQL. Se conseguir, usa MySQL. Se falhar e
+MYSQL_REQUIRED nao estiver ativo, usa SQLite.
+
+Se MYSQL_REQUIRED for 1, true ou yes, a aplicacao exige MySQL e exibe erro se
+nao conseguir conectar.
+
+
+7. TABELAS DO BANCO
+
+7.1 alunos
+
+Armazena os alunos do sistema.
+
+Campos:
+
+- id
+- nome
+- cpf
+- matricula
+- curso
+- criado_em
+
+Regras:
+
+- cpf deve ser unico.
+- matricula deve ser unica.
+
+7.2 professores
+
+Armazena os professores.
+
+Campos:
+
+- id
+- nome
+- cpf
+- registro
+- area
+- criado_em
+
+Regras:
+
+- cpf deve ser unico.
+- registro deve ser unico.
+
+7.3 disciplinas
+
+Armazena as disciplinas.
+
+Campos:
+
+- id
+- nome
+- codigo
+- carga_horaria
+- professor_id
+- criado_em
+
+Regras:
+
+- codigo deve ser unico.
+- professor_id referencia professores.id.
+- Se o professor for removido do banco, a disciplina fica sem professor.
+
+7.4 matriculas
+
+Armazena o vinculo entre aluno e disciplina.
+
+Campos:
+
+- id
+- aluno_id
+- disciplina_id
+- nota1
+- nota2
+- ativo
+- removido_em
+- criado_em
+
+Regras:
+
+- aluno_id referencia alunos.id.
+- disciplina_id referencia disciplinas.id.
+- O par aluno_id + disciplina_id deve ser unico.
+- ativo indica se a matricula aparece na interface.
+- removido_em registra quando a matricula foi removida logicamente.
+
+7.5 usuarios
+
+Armazena os usuarios que podem acessar o sistema.
+
+Campos:
+
+- id
+- usuario
+- senha_hash
+- perfil
+- aluno_id
+- professor_id
+- criado_em
+
+Regras:
+
+- usuario deve ser unico.
+- senha_hash armazena a senha criptografada.
+- perfil pode ser admin, professor ou aluno.
+- aluno_id e usado quando o perfil e aluno.
+- professor_id e usado quando o perfil e professor.
+- Somente admin pode criar, editar e excluir usuarios.
+
+
+8. PERFIS DE ACESSO
+
+O sistema possui tres perfis:
+
+8.1 Admin
+
+Permissoes:
+
+- Acessar o painel inicial completo.
+- Cadastrar, listar e editar alunos.
+- Cadastrar, listar e editar professores.
+- Cadastrar, listar e editar disciplinas.
+- Criar, editar e remover matriculas.
+- Consultar qualquer boletim.
+- Editar boletins.
+- Gerar relatorios JSON e PDF.
+- Criar, editar e excluir usuarios.
+
+8.2 Professor
+
+Permissoes:
+
+- Acessar o sistema com login.
+- Consultar boletins dos alunos matriculados em suas disciplinas.
+- Editar notas e carga horaria no boletim das suas disciplinas.
+
+Restricoes:
+
+- Nao pode gerenciar alunos.
+- Nao pode gerenciar professores.
+- Nao pode gerenciar disciplinas.
+- Nao pode gerenciar matriculas.
+- Nao pode gerenciar usuarios.
+- Nao pode gerar relatorios administrativos.
+
+8.3 Aluno
+
+Permissoes:
+
+- Acessar o sistema com login.
+- Consultar somente o proprio boletim.
+
+Restricoes:
+
+- Nao pode consultar boletim de outros alunos.
+- Nao pode editar notas.
+- Nao pode gerenciar cadastros.
+- Nao pode gerenciar usuarios.
+- Nao pode gerar relatorios administrativos.
+
+
+9. LOGIN E SESSAO
+
+9.1 Login
+
+Rota:
+
+/login
+
+O usuario informa:
+
+- Usuario
+- Senha
+
+O sistema consulta a tabela usuarios e valida a senha usando hash.
+
+Tambem existe um login administrativo de desenvolvimento:
+
+- Usuario padrao: teste123
+- Senha padrao: 12345
+- Perfil: admin
+
+Esses valores podem ser alterados por:
+
+- LOGIN_USER
+- LOGIN_PASSWORD
+
+9.2 Sessao
+
+Apos o login, o sistema grava na sessao:
+
+- usuario_logado
+- perfil
+- aluno_id
+- professor_id
+
+Esses dados sao usados para controlar menus, acessos e consultas.
+
+9.3 Logout
+
+Rota:
+
+/logout
+
+Metodo:
+
+POST
+
+Ao sair, a sessao e limpa.
+
+
+10. GERENCIAMENTO DE USUARIOS
+
+Rota principal:
+
+/usuarios
+
+Somente admin acessa essa area.
+
+Funcionalidades:
+
+- Listar usuarios cadastrados.
+- Criar usuario.
+- Escolher perfil.
+- Vincular usuario a aluno.
+- Vincular usuario a professor.
+- Editar usuario existente.
+- Alterar senha.
+- Excluir usuario.
+
+Regras:
+
+- Usuario deve ter pelo menos 3 caracteres.
+- Senha deve ter pelo menos 4 caracteres.
+- Confirmacao de senha deve conferir.
+- Perfil aluno exige aluno vinculado.
+- Perfil professor exige professor vinculado.
+- Perfil admin nao exige vinculo.
+- Um admin nao pode excluir o proprio usuario logado.
+
+Rotas:
+
+- GET /usuarios
+  Lista usuarios e exibe formulario de cadastro.
+
+- POST /usuarios
+  Cria um novo usuario.
+
+- GET /usuarios/<id>/editar
+  Exibe formulario de edicao.
+
+- POST /usuarios/<id>/editar
+  Atualiza usuario, perfil, vinculo e opcionalmente senha.
+
+- POST /usuarios/<id>/excluir
+  Exclui o usuario.
+
+
+11. PAINEL INICIAL
+
+Rota:
+
+/
+
+O painel exibe:
+
+- Total de alunos.
+- Total de professores.
+- Total de disciplinas.
+- Total de matriculas ativas.
+- Lista de disciplinas ativas.
+- Banco em uso.
+
+Para aluno:
+
+- O acesso ao painel redireciona para o proprio boletim.
+
+Para admin:
+
+- Exibe botoes de relatorio.
+- Exibe atalho para criar disciplina.
+
+
+12. ALUNOS
+
+Rota:
+
+/alunos
+
+Perfil permitido:
+
+- admin
+
+Funcionalidades:
+
+- Cadastrar aluno.
+- Listar alunos.
+- Buscar aluno pela tabela.
+- Ver boletim do aluno.
+- Editar aluno.
+
+Campos de cadastro:
+
+- nome
+- cpf
+- matricula
+- curso
+
+Rotas:
+
+- GET /alunos
+  Lista alunos.
+
+- POST /alunos
+  Cria aluno.
+
+- GET /alunos/<id>/editar
+  Exibe formulario de edicao.
+
+- POST /alunos/<id>/editar
+  Atualiza aluno.
+
+
+13. PROFESSORES
+
+Rota:
+
+/professores
+
+Perfil permitido:
+
+- admin
+
+Funcionalidades:
+
+- Cadastrar professor.
+- Listar professores.
+- Buscar professor pela tabela.
+- Editar professor.
+- Visualizar disciplinas atribuidas.
+
+Campos de cadastro:
+
+- nome
+- cpf
+- registro
+- area
+
+Rotas:
+
+- GET /professores
+  Lista professores.
+
+- POST /professores
+  Cria professor.
+
+- GET /professores/<id>/editar
+  Exibe formulario de edicao.
+
+- POST /professores/<id>/editar
+  Atualiza professor.
+
+
+14. DISCIPLINAS
+
+Rota:
+
+/disciplinas
+
+Perfil permitido:
+
+- admin
+
+Funcionalidades:
+
+- Cadastrar disciplina.
+- Listar disciplinas.
+- Buscar disciplina pela tabela.
+- Atribuir professor.
+- Editar disciplina.
+
+Campos de cadastro:
+
+- nome
+- codigo
+- carga_horaria
+- professor_id
+
+Rotas:
+
+- GET /disciplinas
+  Lista disciplinas.
+
+- POST /disciplinas
+  Cria disciplina.
+
+- GET /disciplinas/<id>/editar
+  Exibe formulario de edicao.
+
+- POST /disciplinas/<id>/editar
+  Atualiza disciplina.
+
+
+15. MATRICULAS
+
+Rota:
+
+/matriculas
+
+Perfil permitido:
+
+- admin
+
+Funcionalidades:
+
+- Matricular aluno em disciplina.
+- Listar matriculas ativas.
+- Editar matricula.
+- Remover matricula da interface.
+- Reativar matricula removida caso o mesmo aluno seja matriculado novamente.
+
+Campos:
+
+- aluno_id
+- disciplina_id
+
+Remocao logica:
+
+Quando uma matricula e removida, ela nao e apagada do banco. O sistema atualiza:
+
+- ativo = 0
+- removido_em = data/hora atual
+
+Rotas:
+
+- GET /matriculas
+  Lista matriculas ativas.
+
+- POST /matriculas
+  Cria ou reativa matricula.
+
+- GET /matriculas/<id>/editar
+  Exibe formulario de edicao.
+
+- POST /matriculas/<id>/editar
+  Atualiza matricula.
+
+- POST /matriculas/<id>/excluir
+  Remove logicamente a matricula.
+
+
+16. BOLETIM
+
+Rota:
+
+/boletim
+
+Perfis permitidos:
+
+- admin
+- professor
+- aluno
+
+Comportamento por perfil:
+
+- Admin pode selecionar qualquer aluno.
+- Professor pode selecionar alunos matriculados em suas disciplinas.
+- Aluno visualiza automaticamente somente o proprio boletim.
+
+Dados exibidos:
+
+- Nome do aluno.
+- Matricula.
+- CPF.
+- Curso.
+- Codigo da disciplina.
+- Nome da disciplina.
+- Professor.
+- Carga horaria.
+- Nota 1.
+- Nota 2.
+- Media.
+- Status.
+
+Calculo da media:
+
+media = (nota1 + nota2) / 2
+
+Status:
+
+- Aprovado: media maior ou igual a 7.
+- Recuperacao: media menor que 7.
+- Aguardando notas: quando alguma nota ainda nao foi preenchida.
+
+
+17. EDICAO DE BOLETIM
+
+Rota:
+
+/boletim/<matricula_id>/editar
+
+Perfis permitidos:
+
+- admin
+- professor, somente se a matricula pertencer a uma disciplina dele
+
+Funcionalidades:
+
+- Editar nota 1.
+- Editar nota 2.
+- Editar carga horaria da disciplina.
+
+Validacoes:
+
+- Nota deve estar entre 0 e 10.
+- Campo vazio em nota salva valor nulo.
+- Carga horaria deve ser maior que zero.
+
+Aluno nao pode editar boletim.
+
+
+18. RELATORIOS
+
+Perfis permitidos:
+
+- admin
+
+Rotas:
+
+- /relatorios/json
+  Gera e baixa relatorio em JSON.
+
+- /relatorios/pdf
+  Gera e baixa relatorio em PDF.
+
+Dados incluidos:
+
+- Banco em uso.
+- Alunos.
+- Professores.
+- Disciplinas.
+- Matriculas.
+- Status da matricula: ativa ou removida.
+
+Arquivo responsavel:
+
+- relatorios.py
+
+
+19. TEMPLATES HTML
+
+Templates principais:
+
+- base.html
+  Estrutura comum, menu, mensagens e carregamento de CSS/JS.
+
+- login.html
+  Tela de login.
+
+- index.html
+  Painel inicial.
+
+- usuarios.html
+  Lista e cadastro de usuarios.
+
+- editar_usuario.html
+  Edicao de usuario.
+
+- alunos.html
+  Lista e cadastro de alunos.
+
+- editar_aluno.html
+  Edicao de aluno.
+
+- professores.html
+  Lista e cadastro de professores.
+
+- editar_professor.html
+  Edicao de professor.
+
+- disciplinas.html
+  Lista e cadastro de disciplinas.
+
+- editar_disciplina.html
+  Edicao de disciplina.
+
+- matriculas.html
+  Lista e cadastro de matriculas.
+
+- editar_matricula.html
+  Edicao de matricula.
+
+- boletim.html
+  Consulta de boletim.
+
+- editar_boletim.html
+  Edicao de notas e carga horaria.
+
+- erro.html
+  Tela amigavel para erros de banco.
+
+Observacao:
+
+- cadastro.html ficou como tela antiga de cadastro publico e nao faz parte do
+  fluxo atual. O gerenciamento correto de usuarios acontece em usuarios.html.
+
+
+20. REGRAS DE SEGURANCA E PERMISSAO
+
+20.1 Rotas publicas
+
+Somente estas rotas podem ser acessadas sem login:
+
+- /login
+- arquivos estaticos
+
+20.2 Rotas administrativas
+
+Exigem perfil admin:
+
+- /usuarios
+- /alunos
+- /professores
+- /disciplinas
+- /matriculas
+- /relatorios/json
+- /relatorios/pdf
+
+20.3 Rotas compartilhadas
+
+Boletim:
+
+- Admin acessa todos.
+- Professor acessa os alunos de suas disciplinas.
+- Aluno acessa somente o proprio boletim.
+
+20.4 Senhas
+
+As senhas cadastradas na tabela usuarios nao sao salvas em texto puro.
+O sistema usa generate_password_hash e check_password_hash do Werkzeug.
+
+
+21. FUNCOES IMPORTANTES EM app.py
+
+- parse_nota(valor)
+  Converte e valida nota entre 0 e 10.
+
+- parse_carga_horaria(valor)
+  Converte e valida carga horaria maior que zero.
+
+- perfil_atual()
+  Retorna o perfil salvo na sessao.
+
+- usuario_admin()
+  Informa se o usuario atual e admin.
+
+- usuario_professor()
+  Informa se o usuario atual e professor.
+
+- usuario_aluno()
+  Informa se o usuario atual e aluno.
+
+- exigir_perfil(*perfis)
+  Verifica se o usuario possui um dos perfis permitidos.
+
+- professor_pode_editar_matricula(matricula_id)
+  Verifica se o professor logado pode editar determinada matricula.
+
+- exigir_login()
+  Bloqueia rotas privadas quando nao ha usuario logado.
+
+- get_dashboard_counts()
+  Calcula os totais do painel.
+
+- get_dados_relatorio_banco()
+  Monta os dados usados pelos relatorios.
+
+
+22. FUNCOES IMPORTANTES EM db.py
+
+- _connect_mysql()
+  Abre conexao com MySQL.
+
+- _connect_sqlite()
+  Abre conexao SQLite e garante o schema local.
+
+- _ensure_engine()
+  Decide qual banco sera usado.
+
+- is_sqlite()
+  Retorna se o banco atual e SQLite.
+
+- database_label()
+  Retorna uma descricao do banco atual.
+
+- _ensure_sqlite_schema(connection)
+  Cria e ajusta tabelas no SQLite.
+
+- _ensure_mysql_schema(connection)
+  Garante colunas de usuarios no MySQL.
+
+- get_connection()
+  Abre conexao e controla commit/rollback.
+
+- _prepare_query(query)
+  Adapta placeholders %s para ? quando o banco e SQLite.
+
+- fetch_all(query, params=None)
+  Executa SELECT retornando varias linhas.
+
+- fetch_one(query, params=None)
+  Executa SELECT retornando uma linha.
+
+- execute(query, params=None)
+  Executa comandos INSERT, UPDATE e DELETE.
+
+
+23. RELATORIOS EM relatorios.py
+
+Funcoes:
+
+- gerar_relatorio_json(dados, caminho=None)
+  Gera conteudo JSON. Se caminho for informado, grava em arquivo.
+
+- gerar_relatorio_pdf(dados, caminho=None)
+  Gera conteudo PDF. Se caminho for informado, grava em arquivo.
+
+- _montar_linhas_relatorio(dados)
+  Converte os dados em linhas de texto para o PDF.
+
+- _criar_pdf_texto(linhas)
+  Monta um PDF simples em bytes.
+
+- _quebrar_paginas(linhas, linhas_por_pagina)
+  Divide o relatorio em paginas.
+
+- _limpar_texto_pdf(texto)
+  Remove ou escapa caracteres problematicos para o PDF.
+
+
+24. PROTOTIPO ORIENTADO A OBJETOS
+
+O projeto tambem possui um prototipo executavel pelo terminal.
+
+24.1 Pessoa.py
+
+Classe Pessoa:
+
+- nome
+- cpf
+
+Metodos:
+
+- __init__
+- __str__
+
+24.2 Aluno.py
+
+Classe Aluno herda Pessoa.
+
+Atributos:
+
+- nome
+- cpf
+- matricula
+- curso
+- disciplinas
+
+Metodos:
+
+- adicionar_disciplina
+- listar_disciplinas
+- remover_dados
+- __str__
+
+O metodo remover_dados anonimiza os dados pessoais do aluno no prototipo
+orientado a objetos e limpa os vinculos de disciplinas. Na aplicacao web, a
+regra principal de historico continua aplicada nas matriculas por remocao
+logica.
+
+24.3 Professor.py
+
+Classe Professor herda Pessoa.
+
+Atributos:
+
+- nome
+- cpf
+- registro
+- area
+- disciplinas
+
+Metodos:
+
+- adicionar_disciplina
+- listar_disciplinas
+- __str__
+
+24.4 Disciplina.py
+
+Classe Disciplina.
+
+Atributos:
+
+- nome
+- codigo
+- carga_horaria
+- professor
+- alunos
+
+Metodos:
+
+- definir_professor
+- matricular_aluno
+- listar_alunos
+- __str__
+
+24.5 Sistema_academico.py
+
+Classe SistemaAcademico centraliza:
+
+- alunos
+- professores
+- disciplinas
+
+Metodos:
+
+- cadastrar_aluno
+- cadastrar_professor
+- cadastrar_disciplina
+- buscar_aluno_por_matricula
+- buscar_professor_por_registro
+- buscar_disciplina_por_codigo
+- matricular_aluno_em_disciplina
+- listar_alunos
+- listar_professores
+- listar_disciplinas
+- gerar_dados_relatorio
+- gerar_relatorio_json
+- gerar_relatorio_pdf
+
+
+25. COMO EXECUTAR
+
+25.1 Instalar dependencias
+
+Comando:
+
+python -m pip install -r requirements.txt
+
+25.2 Executar aplicacao web
+
+Comando:
+
+python app.py
+
+Acessar:
+
+http://127.0.0.1:5000
+
+25.3 Executar usando Flask diretamente
+
+Comando:
+
+python -m flask --app app run
+
+25.4 Executar prototipo do terminal
+
+Comando:
+
+python Sistema_academico.py
+
+
+26. VARIAVEIS DE AMBIENTE
+
+- FLASK_SECRET_KEY
+  Chave usada pelo Flask para assinar sessoes.
+
+- FLASK_DEBUG
+  Ativa o modo debug somente quando configurado como 1, true ou yes.
+  Em uso fora do desenvolvimento, deve permanecer desativado.
+
+- LOGIN_USER
+  Usuario admin inicial de desenvolvimento.
+
+- LOGIN_PASSWORD
+  Senha do admin inicial de desenvolvimento.
+
+- MYSQL_HOST
+  Host do MySQL.
+
+- MYSQL_PORT
+  Porta do MySQL. Padrao: 3306.
+
+- MYSQL_USER
+  Usuario do MySQL.
+
+- MYSQL_PASSWORD
+  Senha do MySQL.
+
+- MYSQL_DATABASE
+  Nome do banco. Padrao: sistema_academico.
+
+- MYSQL_REQUIRED
+  Se 1, true ou yes, obriga uso do MySQL.
+
+- SQLITE_PATH
+  Caminho do arquivo SQLite local.
+
+
+27. FLUXO DE USO RECOMENDADO
+
+1. Entrar com usuario admin.
+2. Cadastrar professores.
+3. Cadastrar alunos.
+4. Cadastrar disciplinas e atribuir professores.
+5. Matricular alunos nas disciplinas.
+6. Criar usuarios para alunos e professores em /usuarios.
+7. Registrar notas pelo boletim.
+8. Consultar boletins conforme o perfil.
+9. Baixar relatorios quando necessario.
+
+
+28. VALIDACOES E MENSAGENS
+
+O sistema exibe mensagens para:
+
+- Login realizado com sucesso.
+- Usuario ou senha invalidos.
+- Usuario cadastrado com sucesso.
+- Usuario atualizado com sucesso.
+- Usuario excluido com sucesso.
+- Falta de permissao.
+- Aluno nao encontrado.
+- Professor nao encontrado.
+- Disciplina nao encontrada.
+- Matricula nao encontrada.
+- CPF, matricula, registro ou codigo duplicado.
+- Aluno ja matriculado na disciplina.
+- Notas fora do intervalo permitido.
+- Carga horaria invalida.
+
+
+29. LIMITACOES ATUAIS
+
+- Nao ha testes automatizados formais.
+- Nao ha migrations versionadas com ferramenta propria.
+- O login admin padrao e adequado apenas para desenvolvimento.
+- A exclusao de usuarios e fisica, nao logica.
+- Alunos, professores e disciplinas nao possuem exclusao pela interface.
+- A tela de cadastro antiga ainda existe como arquivo, mas nao e usada no fluxo.
+- O PDF e gerado de forma simples, sem biblioteca externa de layout.
+
+
+30. MELHORIAS FUTURAS
+
+Melhorias recomendadas:
+
+- Criar testes automatizados.
+- Criar migrations com Alembic ou Flask-Migrate.
+- Remover ou reaproveitar o template cadastro.html antigo.
+- Criar exclusao logica para alunos, professores e disciplinas.
+- Criar tela para alterar a propria senha.
+- Criar filtros mais detalhados em relatorios.
+- Criar logs de auditoria para mudancas de usuarios e notas.
+- Configurar HTTPS em producao.
+- Criar deploy em nuvem com variaveis de ambiente seguras.
+- Separar ambientes de desenvolvimento, teste e producao.
+
+
+30.1 CRITERIOS DE HOMOLOGACAO DEFINIDOS
+
+Responsavel sugerido pela homologacao:
+
+- Professor/orientador do projeto, com apoio da equipe desenvolvedora.
+
+Criterios obrigatorios para liberar o uso:
+
+- Login funcionando para admin, professor e aluno.
+- Admin conseguindo gerenciar alunos, professores, disciplinas, matriculas e
+  usuarios.
+- Professor visualizando e editando somente boletins das suas disciplinas.
+- Aluno visualizando somente o proprio boletim.
+- Campos obrigatorios bloqueando envio vazio ou somente com espacos.
+- Cadastros duplicados bloqueados pelo banco e pela aplicacao.
+- Pesquisa funcionando por texto parcial e sem diferenciar maiusculas de
+  minusculas.
+- Matricula duplicada bloqueada.
+- Remocao de matricula preservando historico no banco.
+- Relatorios JSON e PDF gerados corretamente.
+- README e documentacao suficientes para instalacao e execucao.
+- Modo debug desativado por padrao.
+
+
+31. PLANO DE HOSPEDAGEM NA AWS
+
+Uma forma recomendada de publicar o sistema e usar:
+
+- GitHub como repositorio.
+- AWS Elastic Beanstalk para hospedar Flask.
+- Amazon RDS for MySQL para o banco.
+- AWS CodePipeline para deploy automatico.
+
+Etapas:
+
+1. Versionar o codigo no GitHub.
+2. Criar banco RDS MySQL.
+3. Executar schema.sql no RDS.
+4. Criar ambiente Python no Elastic Beanstalk.
+5. Configurar variaveis de ambiente no Elastic Beanstalk.
+6. Criar pipeline conectando GitHub ao Elastic Beanstalk.
+7. Adicionar etapa de build/teste com CodeBuild.
+8. Validar login, cadastros, boletins e relatorios em producao.
+
+Variaveis importantes em producao:
+
+- MYSQL_HOST
+- MYSQL_PORT
+- MYSQL_USER
+- MYSQL_PASSWORD
+- MYSQL_DATABASE
+- MYSQL_REQUIRED=1
+- FLASK_SECRET_KEY
+- LOGIN_USER
+- LOGIN_PASSWORD
+
+
+32. CHECKLIST DE TESTE MANUAL
+
+Admin:
+
+- Fazer login.
+- Abrir painel.
+- Cadastrar aluno.
+- Cadastrar professor.
+- Cadastrar disciplina.
+- Criar matricula.
+- Criar usuario aluno.
+- Criar usuario professor.
+- Editar usuario.
+- Excluir usuario.
+- Consultar boletim de qualquer aluno.
+- Editar notas.
+- Baixar relatorio JSON.
+- Baixar relatorio PDF.
+
+Professor:
+
+- Fazer login.
+- Abrir boletim.
+- Ver apenas alunos das suas disciplinas.
+- Editar notas das suas disciplinas.
+- Confirmar bloqueio em /usuarios, /alunos, /professores, /disciplinas e
+  /matriculas.
+
+Aluno:
+
+- Fazer login.
+- Ser redirecionado para o proprio boletim.
+- Confirmar que nao consegue ver outro boletim.
+- Confirmar que nao consegue editar notas.
+- Confirmar bloqueio em rotas administrativas.
+
+
+33. CONSIDERACOES FINAIS
+
+O Sistema Academico evoluiu de um prototipo de orientacao a objetos para uma
+aplicacao web funcional com banco de dados, controle de acesso, boletins e
+relatorios.
+
+A estrutura atual atende a um uso academico e demonstrativo, mantendo o codigo
+simples e facil de entender. Para uso em producao, recomenda-se reforcar
+seguranca, testes, migrations, auditoria e configuracao de deploy.

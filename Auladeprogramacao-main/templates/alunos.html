@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Alunos{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Cadastro</p>
+    <h1>Alunos</h1>
+  </div>
+</section>
+
+<section class="grid">
+  <form class="panel form-panel" method="post">
+    <h2>Novo aluno</h2>
+    <label>Nome<input name="nome" required></label>
+    <label>CPF<input name="cpf" required></label>
+    <label>Matricula<input name="matricula" required></label>
+    <label>Curso<input name="curso" required></label>
+    <button type="submit">Cadastrar aluno</button>
+  </form>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Alunos cadastrados</h2>
+    </div>
+    <label class="search-box">
+      Buscar aluno
+      <input data-table-search="alunos-table" type="search" placeholder="Nome, CPF, matricula, curso ou disciplina">
+    </label>
+    <div class="table-wrap">
+      <table id="alunos-table">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>CPF</th>
+            <th>Matricula</th>
+            <th>Curso</th>
+            <th>Disciplinas</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for aluno in alunos %}
+            <tr data-search-row>
+              <td>{{ aluno.nome }}</td>
+              <td>{{ aluno.cpf }}</td>
+              <td>{{ aluno.matricula }}</td>
+              <td>{{ aluno.curso }}</td>
+              <td>{{ aluno.disciplinas or 'Nenhuma disciplina matriculada.' }}</td>
+              <td>
+                <div class="row-actions">
+                  <a class="ghost-link" href="{{ url_for('boletim', aluno_id=aluno.id) }}">Boletim</a>
+                  <a class="ghost-link" href="{{ url_for('editar_aluno', aluno_id=aluno.id) }}">Editar</a>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr data-empty-row><td colspan="6" class="empty">Nenhum aluno cadastrado.</td></tr>
+          {% endfor %}
+          <tr data-no-results hidden><td colspan="6" class="empty">Nenhum aluno encontrado.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Usuarios{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Acessos</p>
+    <h1>Usuarios</h1>
+  </div>
+</section>
+
+<section class="grid">
+  <form class="panel form-panel" method="post">
+    <h2>Novo usuario</h2>
+    <label>Usuario<input name="usuario" autocomplete="username" required></label>
+    <label>Senha<input name="senha" type="password" autocomplete="new-password" required></label>
+    <label>Confirmar senha<input name="confirmar_senha" type="password" autocomplete="new-password" required></label>
+    <label>
+      Perfil
+      <select name="perfil" required>
+        <option value="aluno">Aluno</option>
+        <option value="professor">Professor</option>
+        <option value="admin">Admin</option>
+      </select>
+    </label>
+    <label>
+      Vincular aluno
+      <select name="aluno_id">
+        <option value="">Sem vinculo de aluno</option>
+        {% for aluno in alunos %}
+          <option value="{{ aluno.id }}">{{ aluno.nome }} - {{ aluno.matricula }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Vincular professor
+      <select name="professor_id">
+        <option value="">Sem vinculo de professor</option>
+        {% for professor in professores %}
+          <option value="{{ professor.id }}">{{ professor.nome }} - {{ professor.registro }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button type="submit">Cadastrar usuario</button>
+  </form>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>Usuarios cadastrados</h2>
+    </div>
+    <label class="search-box">
+      Buscar usuario
+      <input data-table-search="usuarios-table" type="search" placeholder="Usuario, perfil, aluno ou professor">
+    </label>
+    <div class="table-wrap">
+      <table id="usuarios-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Perfil</th>
+            <th>Vinculo</th>
+            <th>Criado em</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in usuarios %}
+            <tr data-search-row>
+              <td>{{ item.usuario }}</td>
+              <td>{{ item.perfil|capitalize }}</td>
+              <td>
+                {% if item.perfil == "aluno" %}
+                  {{ item.aluno or "Aluno nao vinculado" }}{% if item.matricula %} - {{ item.matricula }}{% endif %}
+                {% elif item.perfil == "professor" %}
+                  {{ item.professor or "Professor nao vinculado" }}{% if item.registro %} - {{ item.registro }}{% endif %}
+                {% else %}
+                  Acesso administrativo
+                {% endif %}
+              </td>
+              <td>{{ item.criado_em }}</td>
+              <td>
+                <div class="row-actions">
+                  <a class="ghost-link" href="{{ url_for('editar_usuario', usuario_id=item.id) }}">Editar</a>
+                  <form class="inline-form" method="post" action="{{ url_for('excluir_usuario', usuario_id=item.id) }}">
+                    <button class="ghost" type="submit">Excluir</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {% else %}
+            <tr data-empty-row><td colspan="5" class="empty">Nenhum usuario cadastrado.</td></tr>
+          {% endfor %}
+          <tr data-no-results hidden><td colspan="5" class="empty">Nenhum usuario encontrado.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

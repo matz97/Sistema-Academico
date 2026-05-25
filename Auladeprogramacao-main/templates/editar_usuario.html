@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Editar usuario{% endblock %}
+
+{% block content %}
+<section class="page-title">
+  <div>
+    <p class="eyebrow">Acessos</p>
+    <h1>Editar usuario</h1>
+  </div>
+</section>
+
+<form class="panel edit-panel" method="post">
+  <label>Usuario<input name="usuario" value="{{ usuario.usuario }}" autocomplete="username" required></label>
+  <label>Nova senha<input name="senha" type="password" autocomplete="new-password"></label>
+  <label>Confirmar nova senha<input name="confirmar_senha" type="password" autocomplete="new-password"></label>
+  <label>
+    Perfil
+    <select name="perfil" required>
+      <option value="aluno" {% if usuario.perfil == "aluno" %}selected{% endif %}>Aluno</option>
+      <option value="professor" {% if usuario.perfil == "professor" %}selected{% endif %}>Professor</option>
+      <option value="admin" {% if usuario.perfil == "admin" %}selected{% endif %}>Admin</option>
+    </select>
+  </label>
+  <label>
+    Vincular aluno
+    <select name="aluno_id">
+      <option value="">Sem vinculo de aluno</option>
+      {% for aluno in alunos %}
+        <option value="{{ aluno.id }}" {% if usuario.aluno_id == aluno.id %}selected{% endif %}>{{ aluno.nome }} - {{ aluno.matricula }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>
+    Vincular professor
+    <select name="professor_id">
+      <option value="">Sem vinculo de professor</option>
+      {% for professor in professores %}
+        <option value="{{ professor.id }}" {% if usuario.professor_id == professor.id %}selected{% endif %}>{{ professor.nome }} - {{ professor.registro }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <div class="form-actions">
+    <button type="submit">Salvar alteracoes</button>
+    <a class="button secondary" href="{{ url_for('usuarios') }}">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

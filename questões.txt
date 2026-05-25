@@ -1,0 +1,65 @@
+20 perguntas para homologar e preparar o Sistema Academico para uso
+
+Professor: Felipe Douglas
+Projeto: Sistema Academico
+Status: revisado e atendido em 23/05/2026
+
+1. O objetivo do sistema esta claro para os usuarios finais, como secretaria, professores e alunos?
+Resposta: Sim. O sistema deixa claro que serve para gerenciar alunos, professores, disciplinas, matriculas, boletins, usuarios e relatorios academicos. A documentacao separa o uso por admin, professor e aluno.
+
+2. Quais funcionalidades sao obrigatorias para considerar o sistema pronto: cadastro de alunos, professores, disciplinas, matriculas, pesquisa e relatorios?
+Resposta: As funcionalidades obrigatorias definidas sao login, perfis de acesso, cadastro e edicao de alunos, professores, disciplinas e matriculas, pesquisa nas tabelas, boletim, gerenciamento de usuarios por admin e relatorios JSON/PDF.
+
+3. Todos os campos obrigatorios dos formularios estao validados corretamente antes de salvar no banco?
+Resposta: Sim. Alem do required do HTML, o backend agora valida campos obrigatorios e impede envio vazio ou preenchido apenas com espacos antes de salvar.
+
+4. O sistema impede cadastros duplicados de CPF, matricula de aluno, registro de professor e codigo de disciplina?
+Resposta: Sim. O banco possui restricoes UNIQUE e a aplicacao trata o erro exibindo mensagens claras para o usuario.
+
+5. A pesquisa de alunos por nome funciona com nomes completos, partes do nome e diferencas entre letras maiusculas e minusculas?
+Resposta: Sim. A pesquisa usa JavaScript com comparacao em letras minusculas e busca por parte do texto.
+
+6. O fluxo de matricula impede que o mesmo aluno seja matriculado duas vezes na mesma disciplina?
+Resposta: Sim. A aplicacao verifica matricula existente e o banco tambem impede duplicidade pelo par aluno_id e disciplina_id.
+
+7. A remocao de matriculas esta funcionando conforme esperado, mantendo o historico no banco quando necessario?
+Resposta: Sim. A remocao e logica: a matricula recebe ativo = 0 e removido_em com data/hora, preservando o historico no banco.
+
+8. O metodo de remover dados do aluno em Aluno.py esta coerente com a regra de negocio definida para o projeto?
+Resposta: Sim. Foi criado o metodo remover_dados em Aluno.py para anonimizar os dados do aluno no prototipo orientado a objetos. Na aplicacao web, a regra principal de historico continua sendo a remocao logica das matriculas.
+
+9. As telas de cadastro, edicao, listagem e pesquisa apresentam mensagens claras de sucesso, erro ou alerta?
+Resposta: Sim. O sistema exibe mensagens para login, permissoes, cadastros, edicoes, duplicidades, validacoes, boletim, matriculas e usuarios.
+
+10. O layout da interface funciona bem em telas menores, como notebook, tablet e celular?
+Resposta: Sim. O CSS possui regras responsivas para reorganizar menu, grids, cards e informacoes do boletim em telas menores.
+
+11. Os relatorios em JSON e PDF mostram todos os dados necessarios para conferencia academica?
+Resposta: Sim. Os relatorios mostram banco em uso, alunos, professores, disciplinas, matriculas e status das matriculas.
+
+12. O banco MySQL pode ser criado corretamente a partir do arquivo schema.sql em um ambiente novo?
+Resposta: Sim. O schema.sql cria o banco sistema_academico, tabelas, relacionamentos principais e dados iniciais.
+
+13. O modo SQLite local funciona corretamente quando o MySQL nao esta disponivel?
+Resposta: Sim. O db.py cria e atualiza automaticamente o schema SQLite quando o MySQL nao esta disponivel e MYSQL_REQUIRED nao esta ativo.
+
+14. As instrucoes do README e da documentacao permitem que outra pessoa instale e execute o projeto sem ajuda do professor?
+Resposta: Sim. O README e a documentacao explicam dependencias, execucao, MySQL, SQLite, variaveis de ambiente, login inicial e fluxo de uso.
+
+15. Existem testes manuais documentados para cadastro, edicao, pesquisa, matricula, remocao e relatorios?
+Resposta: Sim. A documentacao possui checklist de teste manual para admin, professor e aluno, incluindo cadastros, edicoes, pesquisa, matriculas, remocao, boletim e relatorios.
+
+16. O sistema foi testado com dados validos, dados incompletos, dados duplicados e dados digitados incorretamente?
+Resposta: Sim. Foram validados os cenarios principais: dados validos, campos vazios, campos com espacos, duplicidades, carga horaria invalida, nota invalida e bloqueio de acesso por perfil.
+
+17. As mensagens, nomes de campos e textos das telas estao padronizados em portugues e sem ambiguidades?
+Resposta: Sim. As mensagens e campos estao em portugues, com textos objetivos para sucesso, alerta e erro. O projeto mantem o padrao sem acentuacao em varios textos por compatibilidade com os arquivos existentes.
+
+18. O projeto esta protegido contra usos inadequados basicos, como envio de formularios vazios ou valores invalidos?
+Resposta: Sim. Ha validacao de campos obrigatorios no backend, validacao de notas entre 0 e 10, carga horaria maior que zero, bloqueio de duplicidades e controle de permissoes por perfil.
+
+19. O sistema possui configuracoes adequadas para uso fora do ambiente de desenvolvimento, como chave secreta e modo debug desativado?
+Resposta: Sim. A chave secreta pode ser configurada por FLASK_SECRET_KEY e o modo debug fica desativado por padrao, sendo ativado somente por FLASK_DEBUG=1, true ou yes.
+
+20. A equipe definiu quem ira aprovar a homologacao final e quais criterios precisam estar atendidos para liberar o uso do sistema?
+Resposta: Sim. A documentacao define como responsavel sugerido o professor/orientador do projeto com apoio da equipe desenvolvedora. Os criterios obrigatorios de homologacao estao documentados na secao 30.1 da documentacao.
